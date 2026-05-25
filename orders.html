@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Orders</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  background:#f4f5f7;
+  display:flex;
+  justify-content:center;
+}
+
+.app{
+  width:100%;
+  max-width:430px;
+  min-height:100vh;
+  background:#fff;
+  padding:25px;
+}
+
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:25px;
+}
+
+.header h1{
+  font-size:32px;
+  color:#111827;
+}
+
+.back-btn{
+  width:50px;
+  height:50px;
+  border:none;
+  border-radius:15px;
+  background:#111827;
+  color:#fff;
+  font-size:20px;
+  cursor:pointer;
+}
+
+.total-card{
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  border-radius:24px;
+  padding:25px;
+  color:white;
+  margin-bottom:25px;
+  box-shadow:0 15px 35px rgba(34,197,94,0.25);
+}
+
+.total-card span{
+  font-size:15px;
+  opacity:0.9;
+}
+
+.total-card h2{
+  font-size:40px;
+  margin-top:8px;
+}
+
+.section-title{
+  font-size:24px;
+  font-weight:700;
+  margin-bottom:18px;
+  color:#111827;
+}
+
+.daily-card{
+  background:#fff;
+  padding:18px;
+  border-radius:20px;
+  margin-bottom:15px;
+  box-shadow:
+  0 8px 25px rgba(0,0,0,0.05),
+  inset 0 0 0 1px rgba(0,0,0,0.04);
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.daily-card:active{
+  transform:scale(0.98);
+}
+
+.daily-left small{
+  display:block;
+  color:#6b7280;
+  margin-bottom:5px;
+  font-size:13px;
+}
+
+.daily-left strong{
+  font-size:17px;
+  color:#111827;
+}
+
+.daily-profit{
+  font-size:24px;
+  font-weight:700;
+  color:#16a34a;
+}
+
+.order-card{
+  background:#fff;
+  border-radius:22px;
+  padding:20px;
+  margin-bottom:18px;
+  box-shadow:
+  0 8px 25px rgba(0,0,0,0.05),
+  inset 0 0 0 1px rgba(0,0,0,0.04);
+}
+
+.order-top{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:15px;
+}
+
+.robux{
+  font-size:22px;
+  font-weight:700;
+  color:#111827;
+}
+
+.payment{
+  background:#ecfdf3;
+  color:#16a34a;
+  padding:8px 14px;
+  border-radius:14px;
+  font-size:13px;
+  font-weight:600;
+}
+
+.time{
+  color:#6b7280;
+  font-size:13px;
+  margin-bottom:15px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.item{
+  background:#f9fafb;
+  border-radius:14px;
+  padding:12px;
+}
+
+.item span{
+  display:block;
+  font-size:12px;
+  color:#6b7280;
+  margin-bottom:5px;
+}
+
+.item strong{
+  font-size:16px;
+  color:#111827;
+}
+
+.profit{
+  color:#16a34a !important;
+}
+
+.empty{
+  text-align:center;
+  margin-top:80px;
+  color:#9ca3af;
+  font-size:18px;
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.45);
+  display:none;
+  justify-content:center;
+  align-items:flex-end;
+  z-index:999;
+}
+
+.modal-content{
+  width:100%;
+  max-width:430px;
+  height:85vh;
+  background:#f4f5f7;
+  border-radius:30px 30px 0 0;
+  padding:25px;
+  overflow:auto;
+}
+
+.modal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.close-btn{
+  width:45px;
+  height:45px;
+  border:none;
+  border-radius:14px;
+  background:#111827;
+  color:#fff;
+  font-size:18px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<div class="header">
+
+<button class="back-btn"
+onclick="window.location.href='index.html'">
+←
+</button>
+
+<h1>Orders</h1>
+
+</div>
+
+<div id="ordersContainer"></div>
+
+</div>
+
+<!-- MODAL -->
+
+<div class="modal" id="modal">
+
+<div class="modal-content">
+
+<div class="modal-header">
+
+<h2 id="modalDate">Orders</h2>
+
+<button class="close-btn"
+onclick="closeModal()">
+✕
+</button>
+
+</div>
+
+<div id="modalOrders"></div>
+
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getDatabase,
+ref,
+onValue
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBLtISRiVshmS7qDQT9ngQSRKGJE-pGr_o",
+  authDomain: "robux-orders.firebaseapp.com",
+  databaseURL: "https://robux-orders-default-rtdb.firebaseio.com",
+  projectId: "robux-orders",
+  storageBucket: "robux-orders.firebasestorage.app",
+  messagingSenderId: "141192066074",
+  appId: "1:141192066074:web:065bd863c17a0efcb30da3"
+};
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
+const container =
+document.getElementById("ordersContainer");
+
+const modal =
+document.getElementById("modal");
+
+const modalOrders =
+document.getElementById("modalOrders");
+
+const modalDate =
+document.getElementById("modalDate");
+
+let allOrders = [];
+
+onValue(ref(database,"orders"),(snapshot)=>{
+
+container.innerHTML = "";
+
+const data = snapshot.val();
+
+if(!data){
+
+container.innerHTML = `
+<div class="empty">
+No Orders Yet
+</div>
+`;
+
+return;
+
+}
+
+allOrders = Object.values(data).reverse();
+
+let totalProfit = 0;
+let dailyProfits = {};
+
+allOrders.forEach(order=>{
+
+const profit =
+parseFloat(order.profit);
+
+totalProfit += profit;
+
+if(!dailyProfits[order.date]){
+dailyProfits[order.date] = 0;
+}
+
+dailyProfits[order.date] += profit;
+
+});
+
+let dailyHTML = "";
+
+Object.entries(dailyProfits).forEach(([date,profit])=>{
+
+dailyHTML += `
+
+<div class="daily-card"
+onclick="showDayOrders('${date}')">
+
+<div class="daily-left">
+
+<small>Daily Profit</small>
+
+<strong>
+📅 ${date}
+</strong>
+
+</div>
+
+<div class="daily-profit">
+${profit.toFixed(2)} DH
+</div>
+
+</div>
+
+`;
+
+});
+
+container.innerHTML = `
+
+<div class="total-card">
+
+<span>TOTAL PROFIT</span>
+
+<h2>
+${totalProfit.toFixed(2)} DH
+</h2>
+
+</div>
+
+<div class="section-title">
+Daily Profits
+</div>
+
+${dailyHTML}
+
+`;
+
+});
+
+window.showDayOrders = function(date){
+
+modal.style.display = "flex";
+
+modalDate.innerHTML = date;
+
+modalOrders.innerHTML = "";
+
+const filteredOrders =
+allOrders.filter(order => order.date === date);
+
+filteredOrders.forEach(order=>{
+
+modalOrders.innerHTML += `
+
+<div class="order-card">
+
+<div class="order-top">
+
+<div class="robux">
+${order.robux} Robux
+</div>
+
+<div class="payment">
+${order.payment}
+</div>
+
+</div>
+
+<div class="time">
+⏰ ${order.time}
+</div>
+
+<div class="grid">
+
+<div class="item">
+<span>Global Price</span>
+<strong>${order.global} DH</strong>
+</div>
+
+<div class="item">
+<span>Z2U Price</span>
+<strong>${order.z2u} DH</strong>
+</div>
+
+<div class="item">
+<span>Buy Robux</span>
+<strong>${order.buy}</strong>
+</div>
+
+<div class="item">
+<span>Profit</span>
+<strong class="profit">
+${parseFloat(order.profit).toFixed(2)} DH
+</strong>
+</div>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+window.closeModal = function(){
+modal.style.display = "none";
+}
+
+</script>
+
+</body>
+</html>

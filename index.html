@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Robux Order</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+}
+
+body{
+  background:#f4f5f7;
+  display:flex;
+  justify-content:center;
+}
+
+.app{
+  width:100%;
+  max-width:430px;
+  min-height:100vh;
+  background:#fff;
+}
+
+.header{
+  height:240px;
+  background:linear-gradient(135deg,#dbffe2,#f7fff9);
+  position:relative;
+  overflow:hidden;
+}
+
+.header::before{
+  content:'';
+  position:absolute;
+  width:220px;
+  height:220px;
+  background:rgba(34,197,94,0.1);
+  border-radius:50%;
+  right:-80px;
+  top:-80px;
+}
+
+.robux-icon{
+  position:absolute;
+  right:25px;
+  top:35px;
+  width:110px;
+  height:110px;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  border-radius:30px;
+  transform:rotate(15deg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.robux-icon::before{
+  content:'';
+  width:40px;
+  height:40px;
+  background:#fff;
+  border-radius:10px;
+}
+
+.title{
+  position:absolute;
+  left:25px;
+  bottom:35px;
+}
+
+.title h1{
+  font-size:40px;
+  font-weight:700;
+  color:#111827;
+}
+
+.title p{
+  color:#6b7280;
+  font-size:14px;
+}
+
+.content{
+  padding:25px;
+  margin-top:-20px;
+}
+
+.input-box{
+  height:70px;
+  background:#fff;
+  border-radius:22px;
+  margin-bottom:18px;
+  display:flex;
+  align-items:center;
+  padding:0 18px;
+  box-shadow:
+  0 8px 25px rgba(0,0,0,0.05),
+  inset 0 0 0 1px rgba(0,0,0,0.04);
+}
+
+.icon{
+  width:48px;
+  height:48px;
+  background:#ecfdf3;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-right:15px;
+  font-size:20px;
+}
+
+.input-box input,
+.input-box select{
+  width:100%;
+  border:none;
+  outline:none;
+  background:transparent;
+  font-size:17px;
+}
+
+.btn{
+  width:100%;
+  height:68px;
+  border:none;
+  border-radius:22px;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:#fff;
+  font-size:20px;
+  font-weight:700;
+  margin-top:10px;
+}
+
+.orders-btn{
+  width:100%;
+  height:60px;
+  border:none;
+  border-radius:20px;
+  background:#111827;
+  color:#fff;
+  font-size:17px;
+  margin-top:15px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<div class="header">
+
+<div class="robux-icon"></div>
+
+<div class="title">
+<h1>Robux Order</h1>
+<p>Create your Robux order</p>
+</div>
+
+</div>
+
+<div class="content">
+
+<div class="input-box">
+<div class="icon">🎮</div>
+<input type="number" id="robux"
+placeholder="Number of Robux">
+</div>
+
+<div class="input-box">
+<div class="icon">💳</div>
+
+<select id="payment">
+<option value="">Payment Method</option>
+<option value="inwi">Inwi</option>
+<option value="cashplus">Cash Plus</option>
+</select>
+
+</div>
+
+<div class="input-box">
+<div class="icon">🏷️</div>
+<input type="text" id="globalPrice"
+placeholder="Global Price" readonly>
+</div>
+
+<div class="input-box">
+<div class="icon">🛒</div>
+<input type="text" id="buyRobux"
+placeholder="Robux to Buy" readonly>
+</div>
+
+<div class="input-box">
+<div class="icon">💰</div>
+<input type="text" id="z2uPrice"
+placeholder="Z2U Price" readonly>
+</div>
+
+<div class="input-box">
+<div class="icon">📈</div>
+<input type="text" id="profit"
+placeholder="Profit" readonly>
+</div>
+
+<button class="btn" onclick="saveOrder()">
+ADD ORDER
+</button>
+
+<button class="orders-btn"
+onclick="window.location.href='orders.html'">
+VIEW ORDERS
+</button>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getDatabase,
+ref,
+push
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBLtISRiVshmS7qDQT9ngQSRKGJE-pGr_o",
+  authDomain: "robux-orders.firebaseapp.com",
+  databaseURL: "https://robux-orders-default-rtdb.firebaseio.com",
+  projectId: "robux-orders",
+  storageBucket: "robux-orders.firebasestorage.app",
+  messagingSenderId: "141192066074",
+  appId: "1:141192066074:web:065bd863c17a0efcb30da3"
+};
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
+const robuxInput =
+document.getElementById("robux");
+
+const paymentInput =
+document.getElementById("payment");
+
+const globalPriceInput =
+document.getElementById("globalPrice");
+
+const buyRobuxInput =
+document.getElementById("buyRobux");
+
+const z2uPriceInput =
+document.getElementById("z2uPrice");
+
+const profitInput =
+document.getElementById("profit");
+
+const robuxToBuyMap = {
+500:715,
+800:1143,
+1000:1429,
+1500:2143,
+2000:2858,
+2500:3572,
+3000:4286
+};
+
+const inwiData = {
+80:{global:20,z2u:12.03},
+160:{global:30,z2u:19.95},
+500:{global:60,z2u:38.27},
+800:{global:90,z2u:58.89},
+1000:{global:110,z2u:72.54},
+1500:{global:160,z2u:103.17},
+2000:{global:210,z2u:136.3},
+2500:{global:260,z2u:169.43},
+3000:{global:310,z2u:202.46}
+};
+
+const cashplusData = {
+500:{global:50,z2u:38.27},
+800:{global:70,z2u:58.89},
+1000:{global:90,z2u:72.54},
+1500:{global:130,z2u:103.17},
+2000:{global:170,z2u:136.3},
+2500:{global:210,z2u:169.43},
+3000:{global:250,z2u:202.46}
+};
+
+function calculate(){
+
+const robux = robuxInput.value;
+const payment = paymentInput.value;
+
+let data = null;
+
+if(payment === "inwi"){
+data = inwiData[robux];
+}
+
+if(payment === "cashplus"){
+data = cashplusData[robux];
+}
+
+if(!data){
+globalPriceInput.value = "";
+z2uPriceInput.value = "";
+profitInput.value = "";
+buyRobuxInput.value = "";
+return;
+}
+
+const globalPrice = data.global;
+const z2uPrice = data.z2u;
+
+globalPriceInput.value = globalPrice;
+z2uPriceInput.value = z2uPrice;
+
+buyRobuxInput.value =
+robuxToBuyMap[robux] || "-";
+
+let profit = 0;
+
+if(payment === "inwi"){
+
+let a = globalPrice - z2uPrice;
+let b = a * 0.14;
+
+profit = a - b;
+
+}else{
+
+profit = globalPrice - z2uPrice;
+
+}
+
+profitInput.value = profit.toFixed(2);
+
+}
+
+robuxInput.addEventListener("input",calculate);
+paymentInput.addEventListener("change",calculate);
+
+window.saveOrder = function(){
+
+if(
+robuxInput.value === "" ||
+paymentInput.value === ""
+){
+alert("Fill all fields");
+return;
+}
+
+const now = new Date();
+
+const order = {
+
+robux:robuxInput.value,
+payment:paymentInput.value,
+global:globalPriceInput.value,
+buy:buyRobuxInput.value,
+z2u:z2uPriceInput.value,
+profit:profitInput.value,
+
+date:
+now.toLocaleDateString(),
+
+time:
+now.toLocaleTimeString([],{
+hour:'2-digit',
+minute:'2-digit'
+})
+
+};
+
+push(
+ref(database,"orders"),
+order
+);
+
+alert("Order Added");
+
+}
+
+</script>
+
+</body>
+</html>
