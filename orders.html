@@ -228,6 +228,20 @@ body{
   background:#111827;
   color:#fff;
   font-size:18px;
+  cursor:pointer;
+}
+
+.delete-btn{
+  width:100%;
+  height:55px;
+  border:none;
+  border-radius:16px;
+  background:#ef4444;
+  color:white;
+  font-size:16px;
+  font-weight:600;
+  margin-top:16px;
+  cursor:pointer;
 }
 
 </style>
@@ -282,7 +296,8 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
 getDatabase,
 ref,
-onValue
+onValue,
+remove
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
@@ -331,7 +346,12 @@ return;
 
 }
 
-allOrders = Object.values(data).reverse();
+allOrders = Object.entries(data)
+.map(([id,order])=>({
+id,
+...order
+}))
+.reverse();
 
 let totalProfit = 0;
 let dailyProfits = {};
@@ -461,6 +481,12 @@ ${parseFloat(order.profit).toFixed(2)} DH
 
 </div>
 
+<button
+class="delete-btn"
+onclick="deleteOrder('${order.id}')">
+Delete Order
+</button>
+
 </div>
 
 `;
@@ -471,6 +497,30 @@ ${parseFloat(order.profit).toFixed(2)} DH
 
 window.closeModal = function(){
 modal.style.display = "none";
+}
+
+window.deleteOrder = function(id){
+
+const code = prompt("Enter security code:");
+
+if(code === null) return;
+
+if(code !== "mehdi2002"){
+  alert("Wrong code!");
+  return;
+}
+
+const confirmDelete =
+confirm("Delete this order?");
+
+if(!confirmDelete) return;
+
+remove(
+ref(database,"orders/" + id)
+);
+
+alert("Order deleted successfully!");
+
 }
 
 </script>
